@@ -64,12 +64,14 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev # Use development Dockerfile
     container_name: distance-calculator-frontend
     ports:
-      - "3000:80"
+      - "3000:3000"
     depends_on:
       - backend
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000/api/distance
     networks:
       - app-network
     restart: unless-stopped

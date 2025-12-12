@@ -15,16 +15,19 @@ COPY . .
 # Build the app
 RUN npm run build
 
-# Production stage
-FROM nginx:alpine
+# Production stage - Use node to serve instead of nginx
+FROM node:18-alpine
 
-# Copy built files to nginx
-COPY --from=builder /app/build /usr/share/nginx/html
+WORKDIR /app
 
-# Copy nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Install serve to host static files
+RUN npm install -g serve
+
+# Copy built files
+COPY --from=builder /app/build ./build
 
 # Expose port
-EXPOSE 80
+EXPOSE 3000
 
-CMD ["nginx", "-g", "daemon off;"]
+# Serve the app
+CMD ["serve", "-s", "build", "-l", "3000"]
