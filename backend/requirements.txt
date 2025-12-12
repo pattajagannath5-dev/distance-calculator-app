@@ -8,3 +8,7 @@ python-dotenv
 httpx
 pytest
 pytest-asyncio
+psycopg2-binary
+redis
+aioredis
+fastapi-limiter
