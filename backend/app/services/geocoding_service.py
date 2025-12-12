@@ -4,6 +4,7 @@ from geopy.geocoders import Nominatim
 from geopy.distance import geodesic
 from geopy.exc import GeocoderTimedOut, GeocoderServiceError
 from app.config import Config
+from app.services.cache_service import cache_service
 
 logger = logging.getLogger(__name__)
 
@@ -52,6 +53,12 @@ class GeocodingService:
         Returns:
             Dictionary with distance and location data
         """
+        # Check cache first (bidirectional)
+        cached = cache_service.get_distance(address1, address2)
+        if cached:
+            logger.info(f"Cache hit: {address1} ↔ {address2}")
+            return cached
+        
         # Geocode first address
         location1 = self.geocode_address(address1)
         if not location1:
@@ -71,7 +78,7 @@ class GeocodingService:
         distance_km = geodesic(coords1, coords2).kilometers
         distance_miles = geodesic(coords1, coords2).miles
         
-        return {
+        result = {
             "address1": address1,
             "address2": address2,
             "distance_km": round(distance_km, 2),
@@ -79,6 +86,10 @@ class GeocodingService:
             "location1": location1,
             "location2": location2
         }
+        
+        # Cache the result
+        cache_service.set_distance(address1, address2, result)
+        return result
 
 # Singleton instance
 geocoding_service = GeocodingService()

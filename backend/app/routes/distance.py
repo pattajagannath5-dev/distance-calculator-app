@@ -40,7 +40,7 @@ async def calculate_distance(
             result["distance_miles"]
         )
         
-        return result
+        return DistanceResponse(**result)
     except HTTPException:
         raise
     except Exception as e:
